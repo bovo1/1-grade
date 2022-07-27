@@ -3,4 +3,14 @@
 제출 일자 : 20190623
 
 코드 : 별도 파일
+
+<분석 및 고찰>
+정보를 출력하는 함수인 str 부분에서는 그냥 매개인수를 str로 변형해서 쓰면 됬었으며 getter와 setter 부분에서는 getter는 각 매개변수를 반환하는 것이며 
+setter는 새로 받은 값으로 설정해준 것입니다. Employee 클래스에서 str은 부모클래스인 person str부분을 이용해야 합니다. 
+그래서 super를 이용해서 상위 클래스의 멤버에 접근해서 적었습니다. 자식클래스의 getter와 setter도 상위 클래스와 마찬가지로 반환과 새롭게 설정해줍니다.
+step 2의 함수를 작성하는 부분에서 getPersonInfo는 p리스트를 순회하면서 주민번호가 같은 person 객체를 반환하며,
+getEmpInfo는 E리스트를 순회하면서 eid가 같은 employee 객체를 반환합니다. getSupervisee 함수에서는 상관 번호가 eid인 객체를 넣을 빈 리스트를 추가하고 E리스트를 순회하면서 supervisor가 eid와 같으면 리스트에 emp를 추가하도록 했습니다.
+이제 printRelationship 함수에서는 supervisor가 none이면 ceo라고 했습니다. 그리고 ceo를 기준으로 출력하는 재귀함수를 호출했습니다.
+printSuperviseeReculsive 에서는 depth 만큼 띄어쓰기를 하고 eid를 출력합니다. 그리고 supervisor가 eid인 객체가 담긴 리스트를 만들어주고 이 리스트를 순회하면서 depth를 한단계 올린뒤에 재귀함수를 호출합니다. 굉장히 어려운 과제였습니다. 심지어 이상한 오류가 떠서 코드 작성에 좀 문제가 있었습니다. 심지어 문제를 해결하고 나서도 출력하는 함수를 작성하는데 꽤 시간이 걸렸지만 무탈하게 끝낼 수 있었습니다.
+
 */
