@@ -1,0 +1,301 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+using namespace std;
+
+class date
+{
+public:
+   int year;
+   int month;
+   int day;
+   date(int y = 2000, int m = 1, int d = 1) :year(y), month(m), day(d) {}
+};
+
+class acc
+{
+private:
+	string name;
+	int accno;
+	int money;
+	date d;
+
+public:
+	acc(int no = 0, string name = "", int money = 0, int year = 2000, int month = 1, int day = 1)	//생성자
+		:accno(no), name(name), money(money), d(year, month, day) {}
+	int getacc();
+	string getname();
+	int getmoney();
+	void getd();
+	int getyear();
+	int getmonth();
+	int getday();
+	void plusm(int money);
+	void minusm(int money);
+};
+int acc::getacc(){return accno;}	//계좌번호 반환
+string acc::getname(){return name;}	//이름 반환
+int acc::getmoney(){return money;}	//금액 반환
+void acc::getd(){cout << d.year << " " << d.month << " " << d.day;}	//날짜 출력
+int acc::getyear(){return d.year;}	//년도 반환
+int acc::getmonth(){return d.month;}	//월 반환
+int acc::getday(){return d.day;}	//날짜 반환
+void acc::plusm(int money){this->money += money;}	//입금
+void acc::minusm(int money){this->money -= money;}	//출금
+	
+bool cmpaccno(acc a, acc b)
+{	//sort를 위한 계좌 비교 함수
+	return a.getacc() < b.getacc();
+}
+
+class Bank
+{
+private:
+	int iniaccno;	//초기 계좌번호
+	vector<acc> bnk;
+
+public:
+	Bank()
+	{					//생성자
+		iniaccno = 11111;
+		bnk.reserve(1000);	//계좌 저장용량 1000개 확보
+	}
+
+	void createacc(string name, int money, int year, int month, int day);		// 신규
+	void deposit(int accno, int money);			// 입금
+	void withdraw(int accno, int money);		//출금
+	void transfer(int sender, int receiver, int money);	// 계좌이체
+	void accprint();					//전체계좌조회
+	void dayprint(int year, int month, int day);	//개설 날짜조회
+	void del(int accno);				//해지
+	void accnofind(int accno);				//계좌번호 조회
+	void namefind(string name);			//이름 조회
+};
+
+void Bank::createacc(string name, int money, int year, int month, int day) //계좌 생성
+{
+	bnk.push_back(acc(iniaccno, name, money, year, month, day));
+	this->iniaccno++;
+}
+
+void Bank::deposit(int accno, int money)
+{	// 입금
+	for (int i = 0; i < bnk.size(); i++) {
+		if (bnk.at(i).getacc() == accno) {		//계좌번호 찾은 후
+			bnk.at(i).plusm(money);			// 돈 입금
+			return;
+		}
+	}
+	cout << "error1" << endl;			//계좌가 없을 경우 에러
+}
+
+void Bank::withdraw(int accno, int money)
+{		//출금
+	int k = 0;
+	for (int i = 0; i < bnk.size(); i++) {
+		if (bnk.at(i).getacc() == accno) {		//계좌번호 찾은 후
+			if (bnk[k].getmoney() < money) {	//돈 부족할 경우
+				cout << "error2" << endl;
+				return;
+			}
+			bnk[k].minusm(money);			// 돈 출금
+			return;
+		}
+		k++;
+	}
+	printf("error1\n");			//계좌가 없을 경우 에러
+}
+
+void Bank::transfer(int sender, int receiver, int money)
+{	// 계좌이체
+	int s = -1, r = -1, k = 0;
+	for (int i = 0; i < bnk.size(); i++)
+	{
+		if (bnk[k].getacc() == sender)
+		{		//송금자 계좌번호 찾은 후
+			s = k;						//위치 저장
+		}
+		if (bnk[k].getacc() == receiver)
+		{		//입금자 계좌번호 찾은 후
+			r = k;						//위치 저장
+		}
+		k++;
+	}
+	if (s == -1 || r == -1)
+	{
+		cout<<"error1"<<endl;			//계좌가 없을 경우 에러
+		return;
+	}
+	if (bnk[s].getmoney() < money)
+	{	//sender의 돈 부족할 경우
+		cout << "error2" << endl;
+		return;
+	}
+	bnk.at(s).minusm(money);		//sender의 출금
+	bnk.at(r).plusm(money);			//receiver의 입금
+}
+
+void Bank::dayprint(int year, int month, int day)
+{	//개설 날짜조회
+	sort(bnk.begin(), bnk.end(), cmpaccno);	//계좌번호 순 정렬
+	cout << year << "/" << month << "/" << day << " ";
+	for (int i = 0; i < bnk.size(); i++)
+	{
+		if (bnk.at(i).getyear() == year && bnk.at(i).getmonth() == month && bnk.at(i).getday() == day) 
+		{
+			cout << bnk.at(i).getacc() << " ";
+		}
+	}
+	cout << endl;
+}
+
+void Bank::accprint()
+{					//계좌번호전체 조회
+	sort(bnk.begin(), bnk.end(), cmpaccno);	//계좌번호 순 정렬
+	for (int i = 0; i < bnk.size(); i++) 
+	{	//출력
+		cout << bnk.at(i).getacc() << " " << bnk.at(i).getname() << " "  << bnk.at(i).getmoney() << " ";
+		bnk.at(i).getd();
+		cout << endl;
+	}
+}
+
+void Bank::accnofind(int accno)
+{					//계좌번호 조회
+	int tmp = -1;
+	int k = 0;
+	for (int i = 0; i < bnk.size(); i++)
+	{
+		if (bnk[k].getacc() == accno)
+		{		//해당 계좌번호 찾은 후
+			cout << bnk.at(k).getacc() << " " << bnk.at(k).getname() << " " << bnk.at(k).getmoney() << " ";
+			bnk.at(k).getd();
+			cout << endl;
+			return;
+		}
+		k++;
+	}
+	if (tmp == -1)
+	{			//계좌 없을 경우 에러
+		cout << "error1" << endl;
+		return;
+	}
+
+}
+
+void Bank::namefind(string name)
+{					//예금주이름 조회
+	int tmp = -1;
+	int k = 0;
+	sort(bnk.begin(), bnk.end(), cmpaccno);	//계좌번호 순 정렬
+	for (int i = 0; i < bnk.size(); i++) 
+	{
+		if (bnk[k].getname() == name)
+		{		//해당 계좌번호 찾은 후
+			tmp = k;						//위치 저장
+			cout << bnk.at(tmp).getname() << " " << bnk.at(tmp).getacc() << " " << bnk.at(tmp).getmoney() << " ";
+			bnk[k].getd();
+			cout << endl;
+		}
+		k++;
+	}
+	if (tmp == -1) 
+	{			//계좌 없을 경우 에러
+		cout << "error3" << endl;
+		return;
+	}
+}
+
+void Bank::del(int accno)
+{				//해지
+	int tmp=-1;
+	vector<acc>temp;
+	while (true)
+	{
+		if (bnk.back().getacc() == accno) 
+		{		//계좌번호 찾은 후
+			tmp = 1;			// 해당 계좌 찾았음 표시
+			bnk.pop_back();	//발견시 삭제
+		}
+		if (bnk.empty()) break;
+		temp.push_back(bnk.back()); //bnk->temp 이동
+		bnk.pop_back();
+		
+	}
+	
+	while (true)
+	{ //temp->bnk 이동
+		bnk.push_back(temp.back());
+		temp.pop_back();
+		if (temp.empty()) break;
+	}
+
+	if (tmp == -1)
+	{
+		cout << "error1" << endl;
+		return;
+	}
+}
+
+int main()
+{
+	string name;
+	int accno, money, year, month, day, accno2;
+	string command;
+	Bank bnk;
+
+	while (1)
+	{
+		cin >> command;
+		if (command == "신규")
+		{
+			cin >> name >> money >> year >> month >> day;
+			bnk.createacc(name, money, year, month, day);
+		}
+		else if (command == "입금") 
+		{
+			cin >> accno >> money;
+			bnk.deposit(accno, money);
+		}
+		else if (command == "출금")
+		{
+			cin >> accno >> money;
+			bnk.withdraw(accno, money);
+		}
+		else if (command == "계좌이체")
+		{
+			cin >> accno >> accno2 >> money;
+			bnk.transfer(accno, accno2, money);
+		}
+		else if (command == "계좌번호조회") 
+		{
+			cin >> accno;
+			bnk.accnofind(accno);
+		}
+		else if (command == "예금주이름조회")
+		{
+			cin >> name;
+			bnk.namefind(name);
+		}
+		else if (command == "개설날짜조회") 
+		{
+			cin >> year >> month >> day;
+			bnk.dayprint(year, month, day);
+		}
+		else if (command == "해지") 
+		{
+			cin >> accno;
+			bnk.del(accno);
+		}
+		else if (command == "전체계좌조회") 
+		{
+			bnk.accprint();
+		}
+		else if (command == "종료") 
+		{
+			return 0;
+		}
+	}
+	return 0;
+}
